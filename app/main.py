@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 
 from .database import Base, engine
-from .routers import clients
+from .routers import clients, predict
+
 
 # Création des tables
 Base.metadata.create_all(bind=engine)
@@ -13,3 +14,5 @@ app = FastAPI(
 )
 
 app.include_router(clients.router)
+app.include_router(predict.router)
+

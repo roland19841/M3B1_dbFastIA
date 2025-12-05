@@ -14,6 +14,8 @@ pandas
 # Machine Learning / Stats
 numpy
 scikit-learn
+tensorflow-cpu
+tensorboard
 
 # Visualisation (courbe de loss)
 matplotlib

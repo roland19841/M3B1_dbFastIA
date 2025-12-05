@@ -1,39 +1,23 @@
-# Environment
+# venv
 .venv/
-env/
-venv/
 
-# Python compiled files
+# Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 
-# Editor
-.vscode/
-.idea/
-
-# Logs and caches
-*.log
-*.tmp
-*.swp
-.pytest_cache/
-.mypy_cache/
-
-# Database
+# DB locale
 fastia.db
 *.sqlite
 *.db
 
-# Artifacts (IA outputs)
+# Artifacts modèles
 artifacts/
-*.npz
 *.h5
 *.keras
-loss_curve.png
+*.npz
 
-# Data files (⚠️ garder ou ignorer selon votre choix pédagogique)
+# Logs TensorBoard 
+logs/
+
+# Données brutes 
 data/*.csv
-
-# Alembic cache
-migrations/__pycache__/

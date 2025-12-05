@@ -1,0 +1,40 @@
+# Environnement virtuel
+.venv/
+env/
+venv/
+
+# Fichiers Python compilés
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Config éditeur
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs / caches
+*.log
+*.tmp
+*.swp
+*.swo
+.pytest_cache/
+.mypy_cache/
+
+# Base de données locale
+fastia.db
+*.sqlite
+*.db
+
+# Artefacts de modèle
+artifacts/
+*.npz
+*.h5
+*.keras
+
+# Données générées ou sensibles (à adapter)
+data/data-all.csv
+
+# Autres fichiers système
+.DS_Store
+Thumbs.db

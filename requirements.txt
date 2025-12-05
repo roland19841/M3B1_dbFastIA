@@ -1,0 +1,21 @@
+# Framework API
+fastapi
+uvicorn[standard]
+
+# ORM & Base de données
+sqlalchemy
+pydantic
+pydantic-settings
+
+# Données / CSV
+pandas
+
+# Machine Learning / Stats
+numpy
+scikit-learn
+
+# Visualisation (courbe de loss)
+matplotlib
+
+# Utilitaires
+python-multipart

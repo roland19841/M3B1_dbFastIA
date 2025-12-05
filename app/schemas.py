@@ -44,6 +44,10 @@ class ClientBase(BaseModel):
     family_status: str
     account_created_at: date
 
+    orientation_sexuelle: str
+    nb_enfants: int
+    quotient_caf: float
+
 
 class ClientCreate(ClientBase):
     # on permet de créer en même temps le profil financier si on veut

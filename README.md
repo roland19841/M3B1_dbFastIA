@@ -1,19 +1,17 @@
-# FastIA – API REST & Modèle IA sur Base de Données Relationnelle
-Projet Module 3 Brief 1 – Formation IA – OPCO ATLAS
+# README v2 – Intégration de nouvelles données & migration du schéma FastIA
 
 ## 🎯 Objectif du projet
-Ce projet consiste à :
+Cette seconde phase du projet FastIA vise à :
+1. Analyser de nouvelles données socio-démographiques et économiques  
+2. Nettoyer et transformer ces données  
+3. Faire évoluer la base relationnelle existante  
+4. Appliquer une migration Alembic  
+5. Conserver la compatibilité avec l’API  
+6. Mettre à jour le pipeline IA pour inclure les nouvelles variables pertinentes
 
-1. Créer une base de données relationnelle (SQLite) à partir des données du module 2.  
-2. Exposer ces données via une API REST avec FastAPI + SQLAlchemy.  
-3. Entraîner un modèle IA (réseau de neurones NumPy) à partir des données importées.  
-4. Générer :
-   - une documentation Swagger
-   - une courbe de loss (train/validation)
-   - les poids du modèle
-   - un projet organisé proprement (routes, modèles, CRUD…)
+---
 
-## 📂 Structure du projet
+## 🗂️ Structure du projet
 ```
 fastia_project/
 │
@@ -29,60 +27,106 @@ fastia_project/
 │      └─ train_model.py
 │
 ├─ scripts/
-│  └─ load_data.py
+│  ├─ load_data.py
+│  └─ load_data_v2.py
+│
+├─ migrations/
+│   └─ versions/
+│       └─ X_add_socio_demo.py
 │
 ├─ data/
-│  └─ data-all.csv
+│  └─ data-all-complete.csv
 │
 ├─ artifacts/
 │  ├─ credit_score_model_weights.npz
 │  └─ loss_curve.png
 │
 ├─ fastia.db
-├─ requirements.txt
-└─ README.md
+└─ README_v2.md
 ```
 
-## 🚀 Installation & démarrage
+---
 
-### 1️⃣ Créer un environnement Python 3.11
+## 🧪 Analyse des nouvelles données
+Les colonnes ajoutées :
+- `orientation_sexuelle` (donnée sensible)
+- `nb_enfants`
+- `quotient_caf`
+
+Problèmes identifiés :
+- valeurs manquantes dans certaines colonnes
+- incohérences (nb_enfants négatifs)
+- outliers dans quotient_caf
+- données éthiquement sensibles
+
+Actions menées :
+- normalisation des types
+- correction des outliers
+- exclusion éthique de `orientation_sexuelle` du modèle IA
+
+---
+
+## 🗃️ Migration Alembic
+Une migration a été créée pour ajouter les colonnes :
+
 ```
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+orientation_sexuelle : String(20)
+nb_enfants : Integer
+quotient_caf : Float
 ```
 
-### 2️⃣ Installer les dépendances
+Commande pour appliquer la migration :
+
 ```
-pip install --upgrade pip
-pip install -r requirements.txt
+alembic upgrade head
 ```
 
-## 🛠️ Chargement des données
+---
+
+## 🧼 Pipeline d’ingestion v2
+Le script `load_data_v2.py` :
+- nettoie les colonnes
+- corrige les valeurs aberrantes
+- filtre les lignes trop incomplètes
+- insère les données dans la table clients + financial_info
+
+Lancement :
+
 ```
-python -m scripts.load_data
+python -m scripts.load_data_v2
 ```
 
-## 🌐 Lancer l’API FastAPI + Swagger
-```
-uvicorn app.main:app --reload
-```
+---
 
-Swagger : http://127.0.0.1:8000/docs  
-Redoc : http://127.0.0.1:8000/redoc
+## 🤖 Mise à jour du modèle IA
+Le modèle IA inclut maintenant :
+- nb_enfants
+- quotient_caf  
 
-## 🧠 Entraîner le modèle IA
+💡 orientation_sexuelle est volontairement exclue
+
+Lancement de l’entraînement :
+
 ```
 python -m app.ml.train_model
 ```
 
-Résultats générés dans `artifacts/`.
+Résultats générés dans `artifacts/` :
+- `credit_score_model_weights.npz`
+- `loss_curve.png`
 
-## 📦 Livrables
-- Modèles ORM  
-- API FastAPI fonctionnelle  
-- Routes GET / POST / DELETE  
-- Documentation Swagger  
-- Script d'import  
-- Modèle IA + courbe de loss  
-- Poids du modèle  
-- README complet  
+---
+
+## 🔐 Analyse éthique
+- exclusion de données sensibles (orientation sexuelle)
+- risques de biais socio-économiques documentés
+- pipeline reproductible et transparent
+
+---
+
+## ✅ Conclusion
+Le système est désormais :
+- étendu  
+- migré proprement  
+- compatible avec l’API existante  
+- documenté techniquement et éthiquement  

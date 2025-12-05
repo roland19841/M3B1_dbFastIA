@@ -33,6 +33,11 @@ class Client(Base):
     family_status = Column(String(50), nullable=False)         # situation_familiale
     account_created_at = Column(Date, nullable=False)          # date_creation_compte
 
+    orientation_sexuelle = Column(String(20), nullable=False)
+    nb_enfants = Column(Integer, nullable=False)
+    quotient_caf = Column(Float, nullable=False)
+
+
     # Relation 1-1 avec FinancialInfo
     financial_info = relationship(
         "FinancialInfo",

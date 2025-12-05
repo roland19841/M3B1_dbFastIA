@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sqlalchemy.orm import Session
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.metrics import mean_squared_error
 
 from ..database import SessionLocal
@@ -13,8 +13,13 @@ from .. import models
 def load_data_from_db():
     """
     Charge les données depuis la base :
-    - Features numériques + catégorielles
-    - Target : score_credit
+    - Features numériques + catégorielles (INCLUANT nb_enfants et quotient_caf)
+    - Target : credit_score
+
+    ⚠ NOTE ETHIQUE :
+    La colonne 'orientation_sexuelle' est VOLONTAIREMENT
+    exclue des features pour éviter l'introduction de biais
+    discriminatoires liés à ce type de donnée sensible.
     """
     db: Session = SessionLocal()
     try:
@@ -29,15 +34,20 @@ def load_data_from_db():
 
         for client in clients:
             fin = client.financial_info
+            # On ne garde une ligne que si on a un score de crédit
             if fin is None or fin.credit_score is None:
                 continue
 
+            # Target
             y.append(fin.credit_score)
 
+            # Variables numériques
             numeric_features.append([
                 client.age,
                 client.height_cm or 0.0,
                 client.weight_kg or 0.0,
+                client.nb_enfants or 0,          # NOUVEAU
+                client.quotient_caf or 0.0,      # NOUVEAU
                 fin.monthly_income or 0.0,
                 fin.credit_history or 0.0,
                 fin.personal_risk or 0.0,
@@ -45,6 +55,7 @@ def load_data_from_db():
                 fin.loan_amount or 0.0,
             ])
 
+            # Variables catégorielles
             categorical_features.append([
                 client.sex,
                 client.sport_licence,
@@ -53,15 +64,17 @@ def load_data_from_db():
                 client.smoker,
                 client.is_french,
                 client.family_status,
+                # ⚠ PAS d'orientation_sexuelle ici volontairement
             ])
 
         numeric_features = np.array(numeric_features, dtype=np.float32)
         y = np.array(y, dtype=np.float32).reshape(-1, 1)
 
-        # One-hot sur les variables catégorielles
+        # Encodage One-Hot des variables catégorielles
         encoder = OneHotEncoder(sparse_output=False)
         cat_encoded = encoder.fit_transform(categorical_features)
 
+        # Concaténation numérique + catégoriel
         X = np.concatenate([numeric_features, cat_encoded], axis=1)
 
         return X, y
@@ -197,11 +210,15 @@ class SimpleNN:
 def train_and_save():
     X, y = load_data_from_db()
 
+    # Standardisation des features pour stabiliser l'entraînement
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
     X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X_scaled, y, test_size=0.2, random_state=42
     )
 
-    model = SimpleNN(input_dim=X.shape[1], hidden1=32, hidden2=16, lr=1e-3)
+    model = SimpleNN(input_dim=X_scaled.shape[1], hidden1=32, hidden2=16, lr=1e-3)
 
     train_losses, val_losses = model.fit(
         X_train, y_train,
@@ -215,8 +232,8 @@ def train_and_save():
     mse_val = mean_squared_error(y_val, y_val_pred)
     print(f"MSE validation finale : {mse_val:.4f}")
 
-    # Sauvegarde des poids du modèle
     os.makedirs("artifacts", exist_ok=True)
+    # Sauvegarde des poids
     np.savez(
         "artifacts/credit_score_model_weights.npz",
         W1=model.W1, b1=model.b1,
@@ -224,9 +241,9 @@ def train_and_save():
         W3=model.W3, b3=model.b3,
     )
 
-    # Courbe de loss (train + validation)
+    # Courbe de loss
     plt.figure()
-    plt.plot(train_losses, label="train_loss")
+    plt.plot(train_losses, label="train_loss", linestyle="--")
     plt.plot(val_losses, label="val_loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss (MSE)")

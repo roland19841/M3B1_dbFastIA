@@ -6,6 +6,7 @@ uvicorn[standard]
 sqlalchemy
 pydantic
 pydantic-settings
+alembic
 
 # Données / CSV
 pandas
@@ -19,3 +20,5 @@ matplotlib
 
 # Utilitaires
 python-multipart
+
+

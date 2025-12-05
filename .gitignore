@@ -1,40 +1,39 @@
-# Environnement virtuel
+# Environment
 .venv/
 env/
 venv/
 
-# Fichiers Python compilés
+# Python compiled files
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
+*.pyd
 
-# Config éditeur
+# Editor
 .vscode/
 .idea/
-*.code-workspace
 
-# Logs / caches
+# Logs and caches
 *.log
 *.tmp
 *.swp
-*.swo
 .pytest_cache/
 .mypy_cache/
 
-# Base de données locale
+# Database
 fastia.db
 *.sqlite
 *.db
 
-# Artefacts de modèle
+# Artifacts (IA outputs)
 artifacts/
 *.npz
 *.h5
 *.keras
+loss_curve.png
 
-# Données générées ou sensibles (à adapter)
-data/data-all.csv
+# Data files (⚠️ garder ou ignorer selon votre choix pédagogique)
+data/*.csv
 
-# Autres fichiers système
-.DS_Store
-Thumbs.db
+# Alembic cache
+migrations/__pycache__/
